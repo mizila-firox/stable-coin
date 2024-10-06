@@ -66,6 +66,7 @@ contract gUSD is ERC20, ReentrancyGuard, Test {
             "insufficient collateral"
         );
 
+        //
         // Update the user's collateral balance
         userCollateral[msg.sender] -= ethRequired;
 
