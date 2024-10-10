@@ -66,12 +66,13 @@ contract gUSD is ERC20, ReentrancyGuard, Test {
             "insufficient collateral"
         );
 
-        //
         // Update the user's collateral balance
         userCollateral[msg.sender] -= ethRequired;
 
         // Burn the gUSD
         _burn(msg.sender, _amountToBurn);
+
+        transfer(msg.sender, ethRequired);
 
         // Log the details for debugging
         console.log("price:", price);
@@ -101,5 +102,20 @@ contract gUSD is ERC20, ReentrancyGuard, Test {
         return 8; // later do with a different number to see change the factors accordingly
     }
 
-    // liquidate
+    function liquidate(address user) public {
+        // check if the user is undercollateralized
+        require(
+            getHealthFactor(user) < 1e18,
+            "user is not undercollateralized"
+        );
+
+        // transfer the collateral to the liquidator
+        transfer(msg.sender, userCollateral[user]);
+
+        // burn the gUSD
+        _burn(user, balanceOf(user));
+
+        // reset the user's collateral balance
+        userCollateral[user] = 0;
+    }
 }
